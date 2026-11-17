@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1a2b">
+  <title>Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --glass: rgba(255, 255, 255, 0.09);
+      --glass-strong: rgba(255, 255, 255, 0.14);
+      --glass-border: rgba(255, 255, 255, 0.16);
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.62);
+      --blue: #0a84ff;
+      --red: #ff453a;
+      }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #747e89 0%, #4a5361 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---------- Phone frame (desktop only) ---------- */
+    .phone {
+      position: relative;
+      width: 100%;
+      min-height: 100dvh;
+      overflow: hidden;
+      /* wallpaper: grey-blue at top, deep blue in the middle, black at the bottom */
+      background:
+        radial-gradient(120% 40% at 50% 38%, rgba(33, 78, 120, 0.9), transparent 70%),
+        linear-gradient(180deg, #5d6b78 0%, #1b3a5c 30%, #0a1624 62%, #000 100%);
+    }
+
+    .notch { display: none; }
+
+    @media (min-width: 600px) {
+      body { padding: 24px; }
+      .phone {
+        width: 400px;
+        height: 840px;
+        min-height: 0;
+        border-radius: 56px;
+        border: 10px solid #9fb0c8;
+        box-shadow: 0 0 0 2px #6b7a90, 0 30px 80px rgba(0, 0, 0, 0.45);
+      }
+      .notch {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150px;
+        height: 30px;
+        background: #000;
+        border-radius: 0 0 20px 20px;
+        z-index: 5;
+      }
+    }
+
+    /* ---------- Screen content ---------- */
+    .screen {
+      height: 100%;
+      overflow-y: auto;
+      padding: calc(48px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Liquid glass surface */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      -webkit-backdrop-filter: blur(28px) saturate(170%);
+      backdrop-filter: blur(28px) saturate(170%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Header widget */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .app-icon {
+      flex: none;
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(160deg, #2c2c2e, #111);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .app-icon span {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #5ac8fa, #0a84ff, #bf5af2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+    .header p  { font-size: 0.9rem; color: var(--text-dim); margin-top: 2px; }
+
+    /* Form widget */
+    .form-card { padding: 22px 20px 20px; }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin: 0 4px 8px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap input {
+      width: 100%;
+      height: 54px;
+      padding: 0 16px;
+      border-radius: 18px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0, 0, 0, 0.28);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .input-wrap input::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+    .input-wrap input:focus {
+      border-color: var(--blue);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .input-wrap input.error { border-color: var(--red); }
+
+    .toggle {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 44px;
+      padding: 0 12px;
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .error-msg {
+      color: var(--red);
+      font-size: 0.78rem;
+      margin: 6px 4px 0;
+      min-height: 1em;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      margin: 4px 4px 20px;
+    }
+
+    .row label { display: flex; align-items: center; gap: 8px; color: var(--text-dim); }
+    .row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue); }
+    .row a { color: var(--blue); text-decoration: none; font-weight: 500; }
+
+    .btn {
+      width: 100%;
+      height: 54px;
+      border: none;
+      border-radius: 18px;
+      background: var(--blue);
+      color: #fff;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 20px rgba(10, 132, 255, 0.35);
+      transition: transform 0.12s, filter 0.12s;
+    }
+
+    .btn:active { transform: scale(0.98); filter: brightness(0.92); }
+
+    .btn:focus-visible,
+    .toggle:focus-visible {
+      outline: 3px solid rgba(10, 132, 255, 0.6);
+      outline-offset: 2px;
+    }
+
+    @media (max-height: 700px) {
+      .screen { padding-top: calc(32px + env(safe-area-inset-top, 0px)); gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="notch"></div>
+
+    <main class="screen">
+
+      <header class="glass header">
+        <div class="app-icon"><span>A</span></div>
+        <div>
+          <h1>Welcome back</h1>
+          <p>Log in to your account</p>
+        </div>
+      </header>
+
+      <section class="glass form-card">
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <div class="input-wrap">
+              <input type="email" id="email" placeholder="you@example.com"
+                     autocomplete="email" inputmode="email">
+            </div>
+            <div class="error-msg" id="emailError"></div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input type="password" id="password" placeholder="Enter your password"
+                     autocomplete="current-password">
+              <button type="button" class="toggle" id="toggle">Show</button>
+            </div>
+            <div class="error-msg" id="passError"></div>
+          </div>
+
+          <div class="row">
+            <label><input type="checkbox"> Remember me</label>
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn">Login</button>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const passError = document.getElementById('passError');
+    const toggle = document.getElementById('toggle');
+
+    // Show / hide password
+    toggle.addEventListener('click', () => {
+      const hidden = password.type === 'password';
+      password.type = hidden ? 'text' : 'password';
+      toggle.textContent = hidden ? 'Hide' : 'Show';
+    });
+
+    // Form validation
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let ok = true;
+
+      emailError.textContent = '';
+      passError.textContent = '';
+      email.classList.remove('error');
+      password.classList.remove('error');
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+        emailError.textContent = 'Enter a valid email address.';
+        email.classList.add('error');
+        ok = false;
+      }
+
+      if (password.value.length < 6) {
+        passError.textContent = 'Password must be at least 6 characters.';
+        password.classList.add('error');
+        ok = false;
+      }
+
+      if (ok) {
+        // Add your backend / API call here
+        alert('Login successful!');
+      }
+    });
+  </script>
+
+</body>
+</html>
