@@ -76,6 +76,10 @@ I will build practical projects at every stage and upload their source code to t
 ## 🎯 Goal
 To become a skilled Full-Stack Web Developer by learning concepts, practicing regularly, and building real-world projects.
 
+## ✍️ Author
+**ASHUTOSH YEDE**
+Aspiring Full-Stack Web Developer
+
 ---
 
 **Learn → Practice → Build → Improve**
